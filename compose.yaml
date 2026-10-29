@@ -1,0 +1,127 @@
+# local-coder: lokale Coding-KI mit Open WebUI als einziger Oberfläche (nur CPU)
+#
+# Dienste:
+#   chat   llama-server mit dem Chat-Modell. Nur API, keine eigene Web-UI,
+#          kein Port auf dem Host. Erreichbar nur für Open WebUI im
+#          Container-Netz unter http://local-coder-chat:8080/v1
+#   webui  Open WebUI, Oberfläche unter http://127.0.0.1:${WEBUI_PORT}
+#   fim    optional: Autovervollständigung für VS Code (AUTOCOMPLETE=1)
+#
+# Alle Werte stammen aus .env. Diese Datei erzeugt setup.sh aus setup.conf,
+# sie wird nicht von Hand bearbeitet.
+#
+# Bedienung über ./ctl.sh (start|stop|restart|status|logs). ctl.sh startet
+# nur die in setup.conf aktivierten Dienste. Ein direktes "compose up" ohne
+# Dienstnamen würde auch fim starten, da Profile von podman-compose 1.0.x
+# ignoriert werden und deshalb bewusst nicht verwendet sind.
+#
+# Der Projektname (local-coder) wird von den Skripten per -p gesetzt. Ein
+# top-level "name:" fehlt bewusst, da ältere Compose-Versionen ihn ablehnen.
+
+x-llm-base: &llm-base
+  image: ${LLM_IMAGE}
+  restart: unless-stopped
+  volumes:
+    - ${MODELS_DIR}:/models:ro
+  # Härtung: Root-Dateisystem schreibgeschützt, keine Capabilities,
+  # keine Rechteausweitung. Ausgelegt für rootless Podman.
+  read_only: true
+  tmpfs:
+    - /tmp
+  cap_drop:
+    - ALL
+  security_opt:
+    - no-new-privileges:true
+
+services:
+  chat:
+    <<: *llm-base
+    container_name: local-coder-chat
+    environment:
+      LLM_ROLE: chat
+      LLM_MODEL: /models/${CHAT_MODEL_FILE}
+      LLM_ALIAS: ${CHAT_ALIAS}
+      LLM_PORT: "8080"
+      LLM_THREADS: ${CHAT_THREADS}
+      LLM_CTX: ${CHAT_CTX}
+      LLM_THINKING: ${CHAT_THINKING}
+      LLM_SAMPLING: ${CHAT_SAMPLING}
+      LLM_EXTRA_ARGS: ${CHAT_EXTRA_ARGS}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10m
+
+  webui:
+    image: ${WEBUI_IMAGE}
+    container_name: local-coder-webui
+    restart: unless-stopped
+    depends_on:
+      - chat
+    ports:
+      - "${BIND_ADDRESS}:${WEBUI_PORT}:8080"
+    volumes:
+      - ${WEBUI_DATA_DIR}:/app/backend/data
+    # Kein read_only: Open WebUI schreibt beim Start Dateien in das Image
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      # Sitzungen bleiben auch nach dem Neuanlegen des Containers gültig
+      WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY}
+      WEBUI_AUTH: ${WEBUI_AUTH}
+      DEFAULT_LOCALE: ${WEBUI_LOCALE}
+      # True = Werte unten gelten nur beim ersten Start, danach Admin-Panel
+      ENABLE_PERSISTENT_CONFIG: ${WEBUI_PERSISTENT_CONFIG}
+
+      # Einzige Modellquelle: der lokale llama-server
+      ENABLE_OLLAMA_API: "False"
+      ENABLE_OPENAI_API: "True"
+      OPENAI_API_BASE_URL: http://local-coder-chat:8080/v1
+      OPENAI_API_KEY: local
+      DEFAULT_MODELS: ${CHAT_ALIAS}
+      ENABLE_EVALUATION_ARENA_MODELS: "False"
+      # Lange Antworten auf der CPU dauern länger als der Standard (300 s)
+      AIOHTTP_CLIENT_TIMEOUT: ${WEBUI_REQUEST_TIMEOUT}
+
+      # Hintergrund-Aufgaben belegen den einzigen Slot von llama-server und
+      # verdrängen den Prompt-Cache des laufenden Chats
+      ENABLE_TITLE_GENERATION: ${WEBUI_TITLE_GENERATION}
+      ENABLE_TAGS_GENERATION: ${WEBUI_BACKGROUND_TASKS}
+      ENABLE_FOLLOW_UP_GENERATION: ${WEBUI_BACKGROUND_TASKS}
+      ENABLE_AUTOCOMPLETE_GENERATION: ${WEBUI_BACKGROUND_TASKS}
+      ENABLE_RETRIEVAL_QUERY_GENERATION: ${WEBUI_BACKGROUND_TASKS}
+      ENABLE_SEARCH_QUERY_GENERATION: ${WEBUI_BACKGROUND_TASKS}
+
+      # Offline-Betrieb und keine Telemetrie
+      OFFLINE_MODE: ${WEBUI_OFFLINE}
+      ENABLE_VERSION_UPDATE_CHECK: "False"
+      ENABLE_COMMUNITY_SHARING: "False"
+      ANONYMIZED_TELEMETRY: "False"
+      DO_NOT_TRACK: "True"
+      SCARF_NO_ANALYTICS: "True"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5m
+
+  fim:
+    <<: *llm-base
+    container_name: local-coder-fim
+    environment:
+      LLM_ROLE: fim
+      LLM_MODEL: /models/${FIM_MODEL_FILE}
+      LLM_PORT: "8012"
+      LLM_THREADS: ${FIM_THREADS}
+      LLM_EXTRA_ARGS: ${FIM_EXTRA_ARGS}
+    ports:
+      - "${BIND_ADDRESS}:${FIM_PORT}:8012"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8012/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5m

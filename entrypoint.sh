@@ -59,8 +59,7 @@ case "$LLM_ROLE" in
         set -- "$@" --alias "$LLM_ALIAS" --ctx-size "$LLM_CTX" \
                     --parallel 1 --jinja
 
-        # Denk-Modus über --reasoning (ersetzt das veraltete
-        # --chat-template-kwargs '{"enable_thinking":...}')
+        # Denk-Modus über --reasoning on/off
         if [ "$LLM_THINKING" = "1" ]; then
             set -- "$@" --reasoning on
             # Qwen-Empfehlung für Coding im Denk-Modus

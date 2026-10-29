@@ -112,7 +112,7 @@ Von `setup.sh` erzeugt (nicht von Hand bearbeiten):
 ## 5. Einrichtung
 
 ```
-cd /DATA/local-coder
+cd local-coder
 vim setup.conf          # optional, Standardwerte passen für 16 GB RAM
 ./setup.sh --check      # nur prüfen
 ./setup.sh              # einrichten und starten
@@ -197,7 +197,7 @@ Empfehlungen für die CPU:
   vollem Kontext. Der volle Kontext sprengt schnell `CHAT_CTX`.
 - Wenige, gezielte Dateien pro Projekt anhängen.
 
-## 9. Modellwechsel (z.B. nach dem RAM-Ausbau)
+## 9. Modellwechsel (z.B. für 64 GB RAM)
 
 In `setup.conf` die auskommentierten Zeilen für das größere Modell
 aktivieren und den Kontext erhöhen:
@@ -210,8 +210,8 @@ CHAT_CTX=32768
 
 Danach `./setup.sh` ausführen. Das Modell wird geladen, die Container werden
 neu angelegt. Der Modellname in Open WebUI (`CHAT_ALIAS`) bleibt gleich,
-Projekte und Standardmodell passen weiterhin. Das alte Modell kann danach
-aus `MODELS_DIR` gelöscht werden.
+Projekte und Standardmodell passen weiterhin. Die zuvor genutzte
+Modelldatei kann danach aus `MODELS_DIR` gelöscht werden.
 
 ## 10. Autovervollständigung in VS Code (optional)
 
@@ -302,18 +302,3 @@ Dateien anhängen oder `CHAT_CTX` erhöhen (benötigt mehr RAM).
 **Antworten brechen nach einigen Minuten ab**
 
 `WEBUI_REQUEST_TIMEOUT` in `setup.conf` erhöhen, danach `./setup.sh`.
-
-## 15. Umstieg vom bisherigen Stand
-
-Der bisherige Stand nutzte die eingebaute Weboberfläche von llama-server auf
-Port 8080 und eine `.env` aus `env.example`. Beim Umstieg:
-
-- Die Dateien `env.example` und `download_models.sh` werden nicht mehr
-  benötigt und können gelöscht werden.
-- `setup.sh` sichert eine bestehende, nicht von `setup.sh` erzeugte `.env`
-  als `.env.old` und erzeugt eine neue aus `setup.conf`.
-- Vorhandene Modelle in `./models` werden weiter verwendet, sofern die
-  Dateinamen in `setup.conf` übereinstimmen.
-- Die Oberfläche ist jetzt unter <http://127.0.0.1:3000> erreichbar. Port 8080
-  wird nicht mehr belegt. Eine Anbindung von VS-Code-Chat-Erweiterungen an
-  Port 8080 (z.B. Continue) entfällt.

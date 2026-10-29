@@ -4,7 +4,7 @@
 #   - Images (llama-server inkl. Build-Reste, llama.cpp-Basis-Image, Open WebUI)
 #   - Modelle (MODELS_DIR)
 #   - Daten von Open WebUI (Konten, Chats, Projekte, Wissen, Uploads)
-#   - erzeugte Dateien (.env, .env.old, .webui_secret, .local-coder.log)
+#   - erzeugte Dateien (.env, .webui_secret, .local-coder.log)
 # Die Projektdateien (Skripte, setup.conf, README.md, README_de.md) bleiben erhalten.
 #
 # Laufen noch Container, werden sie angezeigt und es folgt eine Abfrage (y/n).
@@ -298,7 +298,7 @@ remove_data() {
 remove_files() {
     section "Erzeugte Dateien"
     local f
-    for f in "$ENV_FILE" "$ENV_FILE.old" "$ENV_FILE.tmp" "$LOG_FILE" "$SECRET_FILE"; do
+    for f in "$ENV_FILE" "$ENV_FILE.tmp" "$LOG_FILE" "$SECRET_FILE"; do
         if [ "$KEEP_DATA" = "1" ] && [ "$f" = "$SECRET_FILE" ]; then
             # Der Schlüssel gehört zu den Sitzungen der behaltenen Daten
             skip "$f bleibt erhalten (--keep-data)"

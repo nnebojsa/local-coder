@@ -432,7 +432,7 @@ check_dirs() {
                       "In $WEBUI_DATA_DIR existiert bereits eine Datenbank mit Konten." \
                       "Abhilfe: WEBUI_AUTH=1 setzen oder mit ./cleanup.sh --keep-models neu beginnen"
         elif [ "$WEBUI_AUTH" = "1" ] && [ "$prev_auth" = "False" ]; then
-            check_warn "Wechsel von WEBUI_AUTH=0 auf 1: das bisherige Konto hat kein Passwort" \
+            check_warn "Wechsel von WEBUI_AUTH=0 auf 1: das vorhandene Konto hat kein Passwort" \
                        "Eine Anmeldung ist damit eventuell nicht möglich"
         fi
     fi
@@ -638,11 +638,6 @@ ensure_secret() {
 
 write_env() {
     local tmp="$ENV_FILE.tmp"
-    if [ -f "$ENV_FILE" ] && ! head -n 1 "$ENV_FILE" | grep -qF "$ENV_MARKER"; then
-        mv -f "$ENV_FILE" "$ENV_FILE.old"
-        info "bisherige .env gesichert als .env.old"
-    fi
-
     local persistent=True
     if [ "$WEBUI_CONFIG_FROM_ENV" = "1" ]; then
         persistent=False
@@ -651,7 +646,7 @@ write_env() {
     (
         umask 077
         cat > "$tmp" <<EOF
-$ENV_MARKER aus setup.conf am $(date '+%Y-%m-%d %H:%M:%S')
+# Erzeugt von setup.sh aus setup.conf am $(date '+%Y-%m-%d %H:%M:%S')
 # Nicht von Hand bearbeiten: Änderungen in setup.conf, danach ./setup.sh
 AUTOCOMPLETE=$AUTOCOMPLETE
 LLM_IMAGE=$LLM_IMAGE

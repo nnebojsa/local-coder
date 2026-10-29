@@ -14,7 +14,6 @@ CONF_FILE="$SCRIPT_DIR/setup.conf"
 ENV_FILE="$SCRIPT_DIR/.env"
 SECRET_FILE="$SCRIPT_DIR/.webui_secret"
 LOG_FILE="$SCRIPT_DIR/.local-coder.log"
-ENV_MARKER="# Erzeugt von setup.sh"
 
 # ---------------------------------------------------------------------------
 # Ausgabe (nur ASCII, feste Breite der Präfixe)

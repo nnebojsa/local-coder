@@ -5,7 +5,7 @@
 #   - Modelle (MODELS_DIR)
 #   - Daten von Open WebUI (Konten, Chats, Projekte, Wissen, Uploads)
 #   - erzeugte Dateien (.env, .env.old, .webui_secret, .local-coder.log)
-# Die Projektdateien (Skripte, setup.conf, README.txt, README_de.txt) bleiben erhalten.
+# Die Projektdateien (Skripte, setup.conf, README.md, README_de.md) bleiben erhalten.
 #
 # Laufen noch Container, werden sie angezeigt und es folgt eine Abfrage (y/n).
 #

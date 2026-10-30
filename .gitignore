@@ -1,0 +1,94 @@
+# .gitignore - local-coder
+#
+# Ausgeschlossen sind alles, was setup.sh erzeugt, Schlüssel, Modelle,
+# Daten von Open WebUI sowie lokale Dateien von Editoren und System.
+
+# ---------------------------------------------------------------------------
+# Von setup.sh erzeugt
+# ---------------------------------------------------------------------------
+
+# Werte für compose.yaml, enthält den Sitzungsschlüssel von Open WebUI
+.env
+.env.tmp
+.env.*
+
+# Sitzungsschlüssel von Open WebUI
+.webui_secret
+
+# Ausgaben von Build und Compose
+.local-coder.log
+*.log
+
+# ---------------------------------------------------------------------------
+# Modelle und Daten (Standardpfade aus setup.conf)
+# ---------------------------------------------------------------------------
+
+# GGUF-Modelle, mehrere GB
+/models/
+*.gguf
+*.gguf.part
+*.part
+
+# Daten von Open WebUI: Konten, Chats, Projekte, Wissen, Uploads
+/data/
+
+# ---------------------------------------------------------------------------
+# Schlüssel, Zertifikate, Sicherungen
+# ---------------------------------------------------------------------------
+
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.gpg
+*.asc
+
+# ---------------------------------------------------------------------------
+# Archive (Lieferungen, Sicherungen)
+# ---------------------------------------------------------------------------
+
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+
+# ---------------------------------------------------------------------------
+# Temporäre Dateien und Sicherungskopien
+# ---------------------------------------------------------------------------
+
+*.tmp
+*.bak
+*.orig
+*.rej
+*~
+
+# ---------------------------------------------------------------------------
+# Editoren
+# ---------------------------------------------------------------------------
+
+# vim
+*.swp
+*.swo
+.*.sw?
+Session.vim
+.netrwhist
+
+# VS Code (lokale Einstellungen, Pfade, Workspaces)
+.vscode/
+*.code-workspace
+.history/
+
+# JetBrains
+.idea/
+
+# ---------------------------------------------------------------------------
+# Betriebssystem
+# ---------------------------------------------------------------------------
+
+.DS_Store
+Thumbs.db
+desktop.ini
+.directory
+.Trash-*/
